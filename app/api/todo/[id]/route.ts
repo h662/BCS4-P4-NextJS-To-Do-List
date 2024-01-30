@@ -86,12 +86,15 @@ export const PUT = async (
   }
 };
 
-export const POST = async (request: NextRequest) => {
+export const DELETE = async (
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) => {
   try {
-    const { newTodo } = await request.json();
+    const { id } = params;
     const token = request.headers.get("authorization");
 
-    if (!newTodo || !token) {
+    if (!token || isNaN(+id)) {
       return NextResponse.json(
         {
           message: "Not exist data.",
@@ -123,14 +126,30 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const todo = await client.todo.create({
-      data: {
-        content: newTodo,
-        userId: user.id,
+    const existTodo = await client.todo.findUnique({
+      where: {
+        id: +id,
       },
     });
 
-    return NextResponse.json(todo);
+    if (user.id !== existTodo?.userId) {
+      return NextResponse.json(
+        {
+          message: "Can not access.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const deletedTodo = await client.todo.delete({
+      where: {
+        id: +id,
+      },
+    });
+
+    return NextResponse.json(deletedTodo);
   } catch (error) {
     console.error(error);
 

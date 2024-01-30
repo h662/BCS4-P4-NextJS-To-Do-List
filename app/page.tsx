@@ -43,7 +43,7 @@ const Home: NextPage = () => {
       <CreateTodo todos={todos} setTodos={setTodos} />
       <ul className="mt-4 flex flex-col gap-2">
         {todos.map((v, i) => (
-          <TodoCard key={i} todo={v} />
+          <TodoCard key={i} todo={v} todos={todos} setTodos={setTodos} />
         ))}
       </ul>
     </div>

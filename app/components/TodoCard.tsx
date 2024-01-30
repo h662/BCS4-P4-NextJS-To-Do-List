@@ -1,12 +1,14 @@
 import { Todo } from "@prisma/client";
 import axios from "axios";
-import { FC, FormEvent, useState } from "react";
+import { Dispatch, FC, FormEvent, SetStateAction, useState } from "react";
 
 interface TodoCardProps {
   todo: Todo;
+  todos: Todo[];
+  setTodos: Dispatch<SetStateAction<Todo[]>>;
 }
 
-const TodoCard: FC<TodoCardProps> = ({ todo }) => {
+const TodoCard: FC<TodoCardProps> = ({ todo, todos, setTodos }) => {
   const [isDone, setIsDone] = useState<boolean>(todo.isDone);
   const [content, setContent] = useState<string>(todo.content);
   const [toggle, setToggle] = useState<boolean>(false);
@@ -63,6 +65,31 @@ const TodoCard: FC<TodoCardProps> = ({ todo }) => {
     }
   };
 
+  const onDeleteTodo = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      await axios.delete<Todo>(
+        `${process.env.NEXT_PUBLIC_URL}/api/todo/${todo.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const temp = todos.filter((v) => todo.id !== v.id);
+
+      setTodos(temp);
+    } catch (error) {
+      console.error(error);
+
+      setToggle(false);
+    }
+  };
+
   return (
     <li className="mx-8 flex justify-end">
       {toggle ? (
@@ -86,7 +113,9 @@ const TodoCard: FC<TodoCardProps> = ({ todo }) => {
       <button className="btn-style mx-2" onClick={() => setToggle(!toggle)}>
         {toggle ? "Cancel" : "Edit"}
       </button>
-      <button className="btn-style">Delete</button>
+      <button className="btn-style" onClick={onDeleteTodo}>
+        Delete
+      </button>
     </li>
   );
 };
