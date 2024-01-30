@@ -42,11 +42,12 @@ const CreateTodo: FC<CreateTodoProps> = ({ todos, setTodos }) => {
   return (
     <form onSubmit={onCreateTodo}>
       <input
+        className="input-style"
         type="text"
         value={newTodo}
         onChange={(e) => setNewTodo(e.target.value)}
       />
-      <input type="submit" value="Create" />
+      <input className="btn-style ml-2" type="submit" value="Create" />
     </form>
   );
 };
