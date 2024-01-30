@@ -20,16 +20,16 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const existUser = await client.user.findUnique({
+    const user = await client.user.findUnique({
       where: {
         account,
       },
     });
 
-    if (existUser) {
+    if (!user) {
       return NextResponse.json(
         {
-          message: "Already exist user.",
+          message: "Not exist user.",
         },
         {
           status: 400,
@@ -37,22 +37,20 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    const compareResult = bcrypt.compareSync(password, user.password);
 
-    const newUser = await client.user.create({
-      data: {
-        account,
-        password: hashedPassword,
-      },
-      select: {
-        account: true,
-      },
-    });
+    if (!compareResult) {
+      return NextResponse.json(
+        {
+          message: "Not correct password.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
-    const token = jwt.sign(
-      { account: newUser.account },
-      process.env.JWT_SECRET!
-    );
+    const token = jwt.sign({ account: user.account }, process.env.JWT_SECRET!);
 
     return NextResponse.json(token);
   } catch (error) {

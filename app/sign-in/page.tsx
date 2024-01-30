@@ -4,20 +4,20 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-const SignUp = () => {
+const SignIn = () => {
   const [account, setAccount] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const router = useRouter();
 
-  const onSignUp = async (e: FormEvent) => {
+  const onSignIn = async (e: FormEvent) => {
     try {
       e.preventDefault();
 
       if (!account || !password) return;
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_URL}/api/user`,
+        `${process.env.NEXT_PUBLIC_URL}/api/auth`,
         {
           account,
           password,
@@ -25,7 +25,6 @@ const SignUp = () => {
       );
 
       if (response.status === 200) {
-        localStorage.setItem("token", response.data);
         router.replace("/");
       }
     } catch (error) {
@@ -35,8 +34,8 @@ const SignUp = () => {
 
   return (
     <div className="container flex flex-col justify-center items-center">
-      <h1 className="text-xl font-semibold">To do list - Sign Up</h1>
-      <form className="flex mt-4" onSubmit={onSignUp}>
+      <h1 className="text-xl font-semibold">To do list - Sign In</h1>
+      <form className="flex mt-4" onSubmit={onSignIn}>
         <div className="flex flex-col gap-2">
           <input
             className="input-style"
@@ -56,11 +55,11 @@ const SignUp = () => {
         <input
           className="self-end ml-2 btn-style"
           type="submit"
-          value="Sign Up"
+          value="Sign In"
         />
       </form>
     </div>
   );
 };
 
-export default SignUp;
+export default SignIn;
